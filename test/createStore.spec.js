@@ -47,4 +47,83 @@ describe('createStore', () => {
 
   })
 
+  it('supports multiple subscriptions', () => {
+
+    const store = createStore(reducers.testAction)
+    const listenerA = expect.createSpy(() => {})
+    const listenerB = expect.createSpy(() => {})
+
+    let unsubscribeA = store.subscribe(listenerA)
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listenerA.calls.length).toBe(1)
+    expect(listenerB.calls.length).toBe(0)
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listenerA.calls.length).toBe(2)
+    expect(listenerB.calls.length).toBe(0)
+
+    const unsubscribeB = store.subscribe(listenerB)
+    expect(listenerA.calls.length).toBe(2)
+    expect(listenerB.calls.length).toBe(0)
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listenerA.calls.length).toBe(3)
+    expect(listenerB.calls.length).toBe(1)
+
+    unsubscribeA()
+    expect(listenerA.calls.length).toBe(3)
+    expect(listenerB.calls.length).toBe(1)
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listenerA.calls.length).toBe(3)
+    expect(listenerB.calls.length).toBe(2)
+
+    unsubscribeB()
+    expect(listenerA.calls.length).toBe(3)
+    expect(listenerB.calls.length).toBe(2)
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listenerA.calls.length).toBe(3)
+    expect(listenerB.calls.length).toBe(2)
+
+    unsubscribeA = store.subscribe(listenerA)
+    expect(listenerA.calls.length).toBe(3)
+    expect(listenerB.calls.length).toBe(2)
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listenerA.calls.length).toBe(4)
+    expect(listenerB.calls.length).toBe(2)
+    
+  })
+
+  it('only removes listener once when unsubscribe is called', () => {
+    const store = createStore(reducers.testAction)
+    const listenerA = expect.createSpy(() => {})
+    const listenerB = expect.createSpy(() => {})
+
+    const unsubscribeA = store.subscribe(listenerA)
+    store.subscribe(listenerB)
+
+    unsubscribeA()
+    unsubscribeA()
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listenerA.calls.length).toBe(0)
+    expect(listenerB.calls.length).toBe(1)
+  })
+
+  it.only('only removes relevant listener when unsubscribe is called', () => {
+    const store = createStore(reducers.testAction)
+    const listener = expect.createSpy(() => {})
+
+    store.subscribe(listener)
+    const unsubscribeSecond = store.subscribe(listener)
+
+    unsubscribeSecond()
+    unsubscribeSecond()
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    expect(listener.calls.length).toBe(1)
+  })
+
 })
