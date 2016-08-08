@@ -112,7 +112,7 @@ describe('createStore', () => {
     expect(listenerB.calls.length).toBe(1)
   })
 
-  it.only('only removes relevant listener when unsubscribe is called', () => {
+  it('only removes relevant listener when unsubscribe is called', () => {
     const store = createStore(reducers.testAction)
     const listener = expect.createSpy(() => {})
 
@@ -124,6 +124,27 @@ describe('createStore', () => {
 
     store.dispatch({ type: 'UNKNOWN_ACTION' })
     expect(listener.calls.length).toBe(1)
+  })
+
+  it('supports removing a subscription within a subscription', () => {
+    const store = createStore(reducers.testAction)
+    const listenerA = expect.createSpy(() => {})
+    const listenerB = expect.createSpy(() => {})
+    const listenerC = expect.createSpy(() => {})
+
+    store.subscribe(listenerA)
+    const unSubB = store.subscribe(() => {
+      listenerB()
+      unSubB()
+    })
+    store.subscribe(listenerC)
+
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+    store.dispatch({ type: 'UNKNOWN_ACTION' })
+
+    expect(listenerA.calls.length).toBe(2)
+    expect(listenerB.calls.length).toBe(1)
+    expect(listenerC.calls.length).toBe(2)
   })
 
 })

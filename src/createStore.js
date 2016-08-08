@@ -23,7 +23,9 @@ export default function createStore (reducer, preloadedState) {
       if (!isSubscribed) return
       
       isSubscribed = false
-      
+
+      nextListeners = currentListeners.slice() 
+
       const index = nextListeners.indexOf(listener)
       nextListeners.splice(index, 1)
       
@@ -41,6 +43,7 @@ export default function createStore (reducer, preloadedState) {
 
     currentState = currentReducer(currentState,action)
 
+    currentListeners = nextListeners
     const listeners = nextListeners
     listeners.map(function (listener) {
       listener()
