@@ -1,5 +1,5 @@
 import expect from 'expect'
-import { createStore } from '../src/index'
+import { createStore } from '../src'
 
 let reducers =  {
   testAction: (state = [], action) => {

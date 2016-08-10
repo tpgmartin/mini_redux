@@ -1,3 +1,7 @@
+export const ActionTypes = {
+  INIT: 'INIT'
+}
+
 export default function createStore (reducer, preloadedState) {
 
   let currentReducer = reducer
@@ -51,7 +55,7 @@ export default function createStore (reducer, preloadedState) {
 
   }
 
-  dispatch({ type: 'INIT' })
+  dispatch({ type: ActionTypes.INIT })
 
   return {
     dispatch: dispatch,
